@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <title>VOLTUNE</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #090909;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      padding: 25px 20px;
+      background: #151515;
+      border-bottom: 2px solid #ff1744;
+    }
+
+    h1 {
+      margin: 0;
+      color: #ff1744;
+      letter-spacing: 4px;
+    }
+
+    header p { color: #aaa; }
+
+    main { padding: 18px; }
+
+    .card {
+      background: #191919;
+      padding: 18px;
+      margin-bottom: 18px;
+      border: 1px solid #303030;
+      border-radius: 16px;
+    }
+
+    h2 { font-size: 19px; }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #444;
+      border-radius: 9px;
+      background: #101010;
+      color: white;
+    }
+
+    input[type="file"] { font-size: 13px; }
+
+    button {
+      padding: 12px 16px;
+      background: #ff1744;
+      color: white;
+      border: none;
+      border-radius: 9px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    #status {
+      color: #ff627d;
+      overflow-wrap: anywhere;
+    }
+
+    .hint {
+      color: #aaa;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>VOLTUNE</h1>
+    <p>صوتك.. عالمك.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>🎵 مشغل الموسيقى</h2>
+      <p class="hint">اختار أغنية من ملفات جهازك.</p>
+
+      <input id="file" type="file" accept="audio/*">
+
+      <h2>🌐 تشغيل من الإنترنت</h2>
+      <input
+        id="url"
+        type="url"
+        placeholder="ضع رابط ملف صوتي مباشر"
+        dir="ltr"
+      >
+
+      <button id="playUrl">تشغيل الرابط</button>
+
+      <audio id="player" controls preload="metadata"></audio>
+      <p id="status">اختار أغنية للبدء</p>
+    </section>
+
+    <section class="card">
+      <h2>🔴 VOLTUNE PLAYER</h2>
+      <p class="hint">
+        مشغل موسيقى بتصميم أسود وأحمر.
+        الروابط لازم تكون مباشرة لملفات صوتية
+        ومسموح بتشغيلها.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const file = document.getElementById("file");
+    const url = document.getElementById("url");
+    const player = document.getElementById("player");
+    const status = document.getElementById("status");
+
+    let localUrl = null;
+
+    function playSource(source, label) {
+      player.pause();
+      player.src = source;
+      player.load();
+      status.textContent = label;
+
+      player.play().catch(() => {
+        status.textContent =
+          "اضغط تشغيل، أو تأكد إن الرابط شغال.";
+      });
+    }
+
+    file.addEventListener("change", () => {
+      const selected = file.files[0];
+      if (!selected) return;
+
+      if (localUrl) URL.revokeObjectURL(localUrl);
+
+      localUrl = URL.createObjectURL(selected);
+      url.value = "";
+
+      playSource(localUrl, "الأغنية: " + selected.name);
+    });
+
+    document.getElementById("playUrl")
+      .addEventListener("click", () => {
+        const address = url.value.trim();
+
+        if (!address) {
+          status.textContent = "اكتب رابط الأغنية الأول.";
+          return;
+        }
+
+        try {
+          const parsed = new URL(address);
+
+          if (parsed.protocol !== "https:" &&
+              parsed.protocol !== "http:") {
+            throw new Error("Invalid URL");
+          }
+
+          if (localUrl) {
+            URL.revokeObjectURL(localUrl);
+            localUrl = null;
+          }
+
+          file.value = "";
+          playSource(parsed.href, "جاري فتح رابط الأغنية...");
+        } catch {
+          status.textContent = "الرابط غير صحيح.";
+        }
+      });
+
+    player.addEventListener("error", () => {
+      status.textContent =
+        "تعذر تشغيل الملف. جرّب رابط صوت مباشر آخر.";
+    });
+  </script>
+</body>
+</html>
