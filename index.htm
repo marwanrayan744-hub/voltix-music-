@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voltune</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #090909;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      padding: 24px 18px;
+      background: #151515;
+      border-bottom: 2px solid #ff1744;
+    }
+
+    header h1 {
+      margin: 0;
+      color: #ff1744;
+      letter-spacing: 3px;
+    }
+
+    header p {
+      color: #aaa;
+      margin-bottom: 0;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    .card {
+      background: #191919;
+      padding: 18px;
+      border-radius: 16px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      font-size: 20px;
+    }
+
+    button {
+      background: #ff1744;
+      color: white;
+      border: 0;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    input {
+      width: 100%;
+      margin: 10px 0;
+      color: white;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    #status {
+      color: #ff536f;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>VOLTUNE</h1>
+    <p>صوتك.. عالمك.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>🎵 مشغل الأغاني</h2>
+      <p>اختار أغنية من جهازك وشغّلها.</p>
+
+      <input
+        type="file"
+        id="songFile"
+        accept="audio/*"
+      >
+
+      <audio id="player" controls></audio>
+      <p id="status">اختار ملف أغنية للبدء</p>
+    </section>
+
+    <section class="card">
+      <h2>🔴 مكتبة الموسيقى</h2>
+      <p>قريبًا: إضافة الأغاني من روابط الإنترنت.</p>
+      <button onclick="document.getElementById('songFile').click()">
+        اختار أغنية
+      </button>
+    </section>
+  </main>
+
+  <script>
+    const fileInput = document.getElementById("songFile");
+    const player = document.getElementById("player");
+    const status = document.getElementById("status");
+
+    let currentUrl = null;
+
+    fileInput.addEventListener("change", function () {
+      const file = this.files[0];
+
+      if (!file) return;
+
+      if (currentUrl) {
+        URL.revokeObjectURL(currentUrl);
+      }
+
+      currentUrl = URL.createObjectURL(file);
+      player.src = currentUrl;
+      status.textContent = "الأغنية: " + file.name;
+      player.play().catch(() => {
+        status.textContent =
+          "اضغط تشغيل لبدء الأغنية";
+      });
+    });
+  </script>
+</body>
+</html>
